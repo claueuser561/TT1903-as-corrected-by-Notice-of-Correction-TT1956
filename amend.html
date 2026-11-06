@@ -114,7 +114,7 @@
     <div class="btns">
       <a class="btn primary" id="send" href="#">Open in my email app</a>
       <a class="btn secondary" id="gmail" href="#" target="_blank" rel="noopener">Open in Gmail</a>
-      <button class="ghost" id="regen" type="button">Rebuild email</button>
+      <button class="ghost" id="regen" type="button">Write a different version</button>
       <button class="ghost" id="copy" type="button">Copy text</button>
     </div>
     <p class="note" id="deadlineNote"></p>
@@ -187,6 +187,7 @@ const SOURCES = {
   dlnmon:    "Hackney Council, Dalston Liveable Neighbourhood consultation page, FAQs on monitoring (results updated 16 February 2026), consultation.hackney.gov.uk/streetscene/dalston-liveable-neighbourhood",
   ltw:       "London TravelWatch evidence to the London Assembly Transport Committee, 9 December 2025, and LTW blog 'The ever-decreasing speed of London's buses', 6 August 2026",
   ibus:      "Precedents: Croydon Council TMAC data supplement (December 2020) using TfL iBus stop-to-stop arrival times on LTN boundary roads; TfL FOI 0842-2122 (Dulwich LTN), bus corridor delay threshold of three or more consecutive weeks",
+  shop:      "Residents' conversation with the owner of an antique shop on Amhurst Road, E8, November 2026 (owner's account; business not named)",
   petition:  "Hackney Council ePetition 'Impact of Amhurst Road Bus Gate and other traffic measures' (9 June–1 September 2026, 149 signatures)"
 };
 function polishOwn(t){
@@ -212,6 +213,7 @@ const GROUPS = [
   ["residents","New residents' traffic data"],
   ["buses","Buses"],
   ["promises","Promises not kept"],
+  ["business","Local businesses"],
   ["market","Ridley Road Market"],
   ["you","Your own experience (tick only if true for you)"]
 ];
@@ -256,6 +258,10 @@ const POINTS = [
    text:"The Council's own travel survey found Dalston Lane is the main way in and out for local businesses (53% of business operators) and for market traders{c:tsurvey}, yet the left-turn ban cuts the Ridley Road exit onto Dalston Lane. Only 43 market traders were sent the survey{c:tsurvey}, and market traders made up 0% of the 1,136 consultation respondents{c:report25}."},
   {id:"ridleysplit", g:"market", stat:"45% v 44%", title:"Ridley Road ban: the only measure a majority opposed",
    text:"The Ridley Road left-turn ban was the only measure where more respondents disagreed than agreed (45% against, 44% for){c:dlntech}. A measure that directly affects the market should not go ahead without a business impact assessment."},
+  {id:"antique", g:"business", stat:"90% less footfall", title:"Local businesses are already closing",
+   text:"Local businesses are already struggling after the recent schemes. The owner of an antique shop on Amhurst Road told residents in November 2026 that footfall had fallen by around 90% since the changes, and that the shop is now closing{c:shop}. Adding further restrictions, without assessing the effect on local businesses, risks more closures."},
+  {id:"bizimpact", g:"business", stat:"53% use Dalston Lane", title:"No business impact assessment",
+   text:"The Council's own survey found Dalston Lane is the main way in and out for 53% of local business operators{c:tsurvey}. I have seen no business impact assessment in the decision report of pushing more traffic onto Dalston Lane and the surrounding main roads. The Council should assess the effect on local shops, deliveries and customers before making these orders."},
   {id:"pledge", g:"market", stat:"“Protect and improve”", title:"The Council pledged to protect Ridley Road Market",
    text:"The Council says it has 'pledged to protect and improve' Ridley Road Market and to be 'a champion for it', and announced a £1 million refurbishment to 'protect the heart and soul of Dalston'{c:pledge}. Cutting the market's main exit onto Dalston Lane, with no business impact assessment, contradicts that pledge."},
   {id:"mktstrain", g:"market", stat:"Fees up 7–20%", title:"The market is already under strain",
@@ -281,35 +287,79 @@ function cite(text, used){
     return " ["+(n+1)+"]";
   });
 }
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const V = {
+  subject: [
+    "Supplementary objection – Dalston Liveable Neighbourhood Traffic Orders TT1903, as corrected by Notice of Correction TT1956",
+    "Further grounds of objection – TT1903 (Dalston Liveable Neighbourhood), as corrected by TT1956",
+    "Additional objection to TT1903 Dalston Liveable Neighbourhood (corrected by Notice TT1956)",
+    "TT1903 / TT1956 – supplementary objection with new evidence"
+  ],
+  greet: ["Dear Assistant Director, Streetscene,","To the Assistant Director, Streetscene,","Dear Streetscene team,"],
+  intro: [
+    w => `I previously objected to the Dalston Liveable Neighbourhood Traffic Orders (ref. TT1903)${w}. I object to TT1903 as corrected by Notice of Correction TT1956, and write to add further grounds, which I ask you to read together with my original objection.`,
+    w => `Further to my earlier objection to the Dalston Liveable Neighbourhood Traffic Orders (ref. TT1903)${w}, I write to add new grounds. My objection is to TT1903 as corrected by Notice of Correction TT1956, and I ask that these grounds be read alongside my original objection.`,
+    w => `I have already objected to TT1903, the Dalston Liveable Neighbourhood Traffic Orders${w}. Since then, new evidence has come to light, and I am writing to add to that objection. I object to TT1903 as corrected by Notice of Correction TT1956.`
+  ],
+  notice: [
+    "Notice of Correction TT1956, dated 29 October 2026, corrects TT1903 itself: the Shacklewell Lane bus gate description 'should have included an exemption for holders of an HAC01 permit'. The notice states that objections 'about either of the Orders' should be sent 'within 28 days from the date on which this Notice is published', which runs to 26 November 2026{c:tt1956}. This supplementary objection is therefore made within time.",
+    "The Council's Notice of Correction TT1956 (29 October 2026) changes the TT1903 order itself, adding an HAC01 permit exemption to the Shacklewell Lane bus gate. It also says objections 'about either of the Orders' may be sent 'within 28 days from the date on which this Notice is published', that is, up to 26 November 2026{c:tt1956}. I am writing within that period.",
+    "On 29 October 2026 the Council published Notice of Correction TT1956, which corrects the TT1903 proposal (the Shacklewell Lane bus gate 'should have included an exemption for holders of an HAC01 permit') and invites objections 'about either of the Orders' within 28 days of publication, to 26 November 2026{c:tt1956}. This objection is within time."
+  ],
+  legal: [
+    "I make this supplementary objection under regulation 8 of the Local Authorities' Traffic Orders (Procedure) (England and Wales) Regulations 1996, which allows any person to object in writing, stating their grounds, within the objection period. Nothing in the Regulations limits a person to a single submission. Under regulation 13, the Council must consider all objections duly made and not withdrawn before deciding whether to make the orders.",
+    "Regulation 8 of the Local Authorities' Traffic Orders (Procedure) (England and Wales) Regulations 1996 allows any person to object in writing, with grounds, during the objection period, and nothing in the Regulations limits objectors to one submission. Regulation 13 requires the Council to consider every objection duly made before deciding whether to make the orders."
+  ],
+  s122: [
+    "In considering them, I ask the Council to have regard to its duty under section 122 of the Road Traffic Regulation Act 1984: to secure the expeditious, convenient and safe movement of traffic, including pedestrians, having regard to access to premises, the effect on the amenities of the locality, air quality, and the passage of buses.",
+    "I also ask the Council to have regard to section 122 of the Road Traffic Regulation Act 1984, which requires it to secure the expeditious, convenient and safe movement of traffic, including pedestrians, having regard to access to premises, local amenity, air quality and the passage of buses."
+  ],
+  lead: [
+    "Since my original objection, further evidence has become available, much of it in the Council's own decision report (HCE S620). My additional grounds are:",
+    "My further grounds of objection are as follows. Several come from the Council's own decision report (HCE S620):",
+    "New evidence strengthens my objection. In particular:"
+  ],
+  own: ["In my own words:","From my own experience:","What I have seen myself:"],
+  ask: [
+    "These points strengthen my objection. I ask the Council not to make the orders until it has counted traffic on Graham, Navarino and Greenwood Roads, published up-to-date modelling that accounts for the Hackney Central scheme, and agreed funded measures for these roads with residents.",
+    "I ask the Council not to make these orders until it has taken traffic counts on Graham, Navarino and Greenwood Roads, published modelling that takes account of the Hackney Central scheme, and agreed funded measures for these roads with residents.",
+    "Given these points, the orders should not be made until the Council has baseline counts for Graham, Navarino and Greenwood Roads, updated modelling that includes the Hackney Central scheme, and a funded plan for these roads agreed with residents."
+  ],
+  ack: ["Please acknowledge this supplementary objection in writing and confirm that:","Please confirm in writing that:"],
+  sign: ["Yours faithfully,","Kind regards,","Yours sincerely,"]
+};
+let CH = null;
+function choose(){
+  CH = {};
+  for(const k in V) CH[k] = pick(V[k]);
+  CH.order = {};
+  GROUPS.forEach(([g]) => CH.order[g] = shuffle(POINTS.filter(p=>p.g===g).map(p=>p.id)));
+  CH.groupOrder = shuffle(GROUPS.map(g=>g[0]).filter(g=>g!=="you")).concat(["you"]);
+}
 function build(){
+  if(!CH) choose();
   const name=$("name").value.trim(), street=$("street").value.trim(), pc=$("postcode").value.trim().toUpperCase();
   const when=$("when").value.trim(), own=polishOwn($("own").value||"");
-  const ticked = POINTS.filter(p => $("pt_"+p.id).checked);
+  const ids = CH.groupOrder.flatMap(g => CH.order[g]);
+  const ticked = ids.map(id => POINTS.find(p=>p.id===id)).filter(p => $("pt_"+p.id).checked);
   const used=[]; const L=[];
-  L.push("Dear Assistant Director, Streetscene,");
+  L.push(CH.greet); L.push("");
+  L.push(CH.intro(when?` on ${when}`:"") + (street?` I live on ${street}${pc?", "+pc:""}.`:""));
   L.push("");
-  L.push(`I previously objected to the Dalston Liveable Neighbourhood Traffic Orders (ref. TT1903)${when?` on ${when}`:""}. I object to TT1903 as corrected by Notice of Correction TT1956, and write to add further grounds, which I ask you to read together with my original objection.${street?` I live on ${street}${pc?", "+pc:""}.`:""}`);
-  L.push("");
-  L.push(cite("Notice of Correction TT1956, dated 29 October 2026, corrects TT1903 itself: the Shacklewell Lane bus gate description 'should have included an exemption for holders of an HAC01 permit'. The notice states that objections 'about either of the Orders' should be sent 'within 28 days from the date on which this Notice is published', which runs to 26 November 2026{c:tt1956}. This supplementary objection is therefore made within time. The notice is available at: https://publicnoticeportal.uk/notice/traffic-and-roads/6ae471b3a433f635757e8d2e", used));
-  L.push("");
-  L.push("I make this supplementary objection under regulation 8 of the Local Authorities' Traffic Orders (Procedure) (England and Wales) Regulations 1996, which allows any person to object in writing, stating their grounds, within the objection period. Nothing in the Regulations limits a person to a single submission, and these further grounds are made within the period stated in Notice of Correction TT1956. Under regulation 13, the Council must consider all objections duly made and not withdrawn before deciding whether to make the orders.");
-  L.push("");
-  L.push("In considering them, I ask the Council to have regard to its duty under section 122 of the Road Traffic Regulation Act 1984: to secure the expeditious, convenient and safe movement of traffic, including pedestrians, having regard to access to premises, the effect on the amenities of the locality, air quality, and the passage of buses.");
-  L.push("");
+  L.push(cite(CH.notice, used) + " The notice is available at: https://publicnoticeportal.uk/notice/traffic-and-roads/6ae471b3a433f635757e8d2e");
+  L.push(""); L.push(CH.legal); L.push(""); L.push(CH.s122); L.push("");
   if(ticked.length){
-    L.push("Since my original objection, further evidence has become available, much of it in the Council's own decision report (HCE S620). My additional grounds are:");
-    L.push("");
+    L.push(CH.lead); L.push("");
     ticked.forEach((p,i)=>{ L.push(`${i+1}. ${p.title}: ${cite(p.text, used).replace(/\s+\./g,".")}`); L.push(""); });
   }
-  if(own){ L.push("In my own words:"); L.push(own); L.push(""); }
-  L.push("These points strengthen my objection. I ask the Council not to make the orders until it has counted traffic on Graham, Navarino and Greenwood Roads, published up-to-date modelling that accounts for the Hackney Central scheme, and agreed funded measures for these roads with residents.");
-  L.push("");
-  L.push("Please acknowledge this supplementary objection in writing and confirm that:");
+  if(own){ L.push(CH.own); L.push(own); L.push(""); }
+  L.push(CH.ask); L.push("");
+  L.push(CH.ack);
   L.push("(a) it has been logged as an objection duly made to TT1903, as corrected by Notice of Correction TT1956, within the 28-day period that notice states (to 26 November 2026);");
   L.push("(b) it will be read together with my original objection, and both will be considered under regulation 13 and summarised and answered in the officer report before any decision is taken; and");
   L.push("(c) I will be notified of the decision and of any further consultation on these orders.");
-  L.push("");
-  L.push("Yours faithfully,");
+  L.push(""); L.push(CH.sign);
   L.push(name||"[Your name]");
   L.push([street,pc].filter(Boolean).join(", ")||"[Your street and postcode]");
   if(used.length){ L.push(""); L.push("Sources"); used.forEach((k,i)=>L.push(`[${i+1}] ${SOURCES[k]}`)); }
@@ -317,7 +367,7 @@ function build(){
 }
 function update(){
   const body=$("body").value, cc=CONFIG.cc.join(",");
-  const s=encodeURIComponent(SUBJECT), b=encodeURIComponent(body);
+  const s=encodeURIComponent(CH?CH.subject:SUBJECT), b=encodeURIComponent(body);
   $("send").href=`mailto:${CONFIG.to}?cc=${encodeURIComponent(cc)}&subject=${s}&body=${b}`;
   $("gmail").href=`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONFIG.to)}&cc=${encodeURIComponent(cc)}&su=${s}&body=${b}`;
   const n=POINTS.filter(p=>$("pt_"+p.id).checked).length;
@@ -326,7 +376,7 @@ function update(){
   $("missing").style.display= ok?"none":"block";
 }
 let dirty=false;
-function generate(){ $("body").value=build(); dirty=false; update(); }
+function generate(){ $("body").value=build(); $("subject").value=CH.subject; dirty=false; update(); }
 function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1800); }
 if(typeof document!=="undefined" && $("points")){
   $("points").innerHTML = GROUPS.map(([g,label]) => {
@@ -338,8 +388,8 @@ if(typeof document!=="undefined" && $("points")){
   document.querySelectorAll("#points input, #name, #street, #postcode, #when, #own").forEach(el=>el.addEventListener(el.type==="checkbox"?"change":"input",()=>{ if(!dirty) generate(); else update(); }));
   $("all").addEventListener("click",()=>{ POINTS.filter(p=>p.g!=="you").forEach(p=>$("pt_"+p.id).checked=true); generate(); toast("All data points selected"); });
   $("body").addEventListener("input",()=>{dirty=true;update();});
-  $("regen").addEventListener("click",generate);
-  $("copy").addEventListener("click", async()=>{ try{ await navigator.clipboard.writeText(`To: ${CONFIG.to}\nCc: ${CONFIG.cc.join(", ")}\nSubject: ${SUBJECT}\n\n${$("body").value}`); toast("Copied"); }catch(e){ $("body").select(); toast("Select all and copy"); } });
+  $("regen").addEventListener("click",()=>{ choose(); generate(); toast("New version written"); });
+  $("copy").addEventListener("click", async()=>{ try{ await navigator.clipboard.writeText(`To: ${CONFIG.to}\nCc: ${CONFIG.cc.join(", ")}\nSubject: ${CH?CH.subject:SUBJECT}\n\n${$("body").value}`); toast("Copied"); }catch(e){ $("body").select(); toast("Select all and copy"); } });
   generate();
 }
 
